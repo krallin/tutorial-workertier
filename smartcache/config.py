@@ -1,13 +1,22 @@
 #coding:utf-8
+import logging
 import ConfigParser
 
 
 CONFIG_CLASS_OPT = "class"
 
+
+logger = logging.getLogger(__name__)
+
+
 class ConfigLoader(object):
     def __init__(self, *config_paths):
         self.parser = ConfigParser.SafeConfigParser()
-        self.parser.read(config_paths)
+        read_paths = self.parser.read(config_paths)
+        if not read_paths:
+            logger.warning("No configuration file was found")
+
+
 
     def _load_class(self, cls_path):
         module, cls = cls_path.rsplit(".", 1)
