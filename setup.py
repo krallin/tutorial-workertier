@@ -21,7 +21,7 @@ setup(
     ],
     package_dir={'workertier': 'workertier'},
     include_package_data=True,
-    install_requires=["gevent", "pymemcache", "haigha"],
+    install_requires=["gevent", "pymemcache", "haigha", "python-daemon", "lockfile"],
     license="Apache 2",
     entry_points={
         'console_scripts': [
