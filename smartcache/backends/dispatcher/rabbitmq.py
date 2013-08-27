@@ -1,17 +1,26 @@
 #coding:utf-8
 import random
+import logging
+
 import gevent
 from gevent.coros import Semaphore
 
 from haigha.connection import Connection as HaighaConnection
-from haigha.exceptions import ChannelClosed
 from haigha.message import Message
 
 from smartcache.backends.dispatcher import Dispatcher
 
 
+logger = logging.getLogger(__name__)
+
+
+#TODO: Understand and catch where exceptions can pop up
+
+
 class Connection(object):
     def __init__(self, host, port, vhost, user, password, queue):
+        self.conn_id = hex(int(random.random() * 2**32))
+
         self._conn_kwargs = {
             "host": host,
             "port": port,
@@ -28,29 +37,42 @@ class Connection(object):
         self.lock = Semaphore()
         self.broken = False
 
+    def log_debug(self, msg, *args, **kwargs):
+        # Ghetto log handler
+        logger.debug("[Conn {0}] {1}".format(self.conn_id, msg), *args, **kwargs)
+
+    def log_exception(self, msg, *args, **kwargs):
+        logger.exception("[Conn {0}] {1}".format(self.conn_id, msg), *args, **kwargs)
+
     def disconnect(self):
+        self.log_debug("Disconnecting")
         self.broken = True
         self._connection.disconnect()
 
     def _on_disconnect(self):
+        self.log_debug("Received disconnect")
         self.broken = True
 
     def _on_channel_closed(self, channel):
         # Scrape the connection if our channel is closed.
+        self.log_debug("Received channel close")
         self.disconnect()
 
     def _open_connection(self):
+        self.log_debug("Opening RabbitMQ connection")
         self._connection = HaighaConnection(**self._conn_kwargs)
         self._start_connection_loop()
 
     def _open_channel(self):
         # Open a channel and make sure we know if it gets closed
+        self.log_debug("Opening RabbitMQ channel")
         self._channel = self._connection.channel()
         self._channel.add_close_listener(self._on_channel_closed)
         self._channel.queue.declare(self.queue, auto_delete=True)
 
     def _connection_loop(self):
     # The message pump needs to run for the connection to actually do something.
+        self.log_debug("Starting connection loop")
         while not self.broken:
             try:
                 self._connection.read_frames()  # Pump
@@ -58,6 +80,7 @@ class Connection(object):
             except Exception:
                 # If the connection loop breaks, then we should stop using this conneciton!
                 self.broken = True #TODO
+                self.log_exception("Connection loop has died")
 
     def _start_connection_loop(self):
         gevent.spawn(self._connection_loop)  # Power our connection
@@ -86,23 +109,26 @@ class RabbitMQDispatcher(Dispatcher):
 
         self._pool = []
 
-
     def dispatch(self, key):
+        logger.debug("Dispatching new message: '%s'", key)
         for connection in self._pool:
             if connection.broken:
                 continue
 
             if connection.lock.acquire(blocking=False):
+                logger.debug("Reusing existing connection")
                 connection.dispatch(key)
                 connection.lock.release()
                 break
         else:
+            logger.debug("Creating new connection")
             connection = Connection(self.host, self.port, self.vhost, self.user, self.password, self.queue)
             connection.dispatch(key)
             self._pool.append(connection)
 
         # Clean up 10% of the time
         if random.random() < 0.1:
+            logger.debug("Cleaning up broken connections")
             self._pool = [connection for connection in self._pool if not connection.broken]
 
 

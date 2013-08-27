@@ -1,4 +1,5 @@
 #coding:utf-8
+import logging
 from gevent import pywsgi
 
 from smartcache.app import Handler
@@ -9,6 +10,9 @@ from smartcache.backends.dispatcher.memory import MemoryDispatcher
 
 from smartcache.backends.cache.memcached import MemcachedCache
 from smartcache.backends.dispatcher.rabbitmq import RabbitMQDispatcher
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 
 if __name__ == "__main__":
