@@ -1,10 +1,6 @@
 #coding:utf-8
 from gevent import monkey
-from gevent import pywsgi
-
-from smartcache.backends import Backend
-from smartcache.backends.cache.memory import MemoryCache
-from smartcache.backends.dispatcher.memory import MemoryDispatcher
+from smartcache.backends import InvalidKey, BackendUnavailable
 
 monkey.patch_all()
 
@@ -27,7 +23,15 @@ class Handler(object):
             return
 
         key = url[1:]
-        value = self.backend.get(key)
+
+        try:
+            value = self.backend.get(key)
+        except InvalidKey:
+            start_response('400 Bad Request', [])
+            return
+        except BackendUnavailable:
+            start_response('503 Service Unavailable', [])
+            return
 
         if value is None:
             start_response('203 Non-Authoritative Information', [])
@@ -36,13 +40,3 @@ class Handler(object):
         start_response('200 OK', [('Content-Type', 'text/plain')])
         yield value
         yield "\n"
-
-
-if __name__ == "__main__":
-    print 'Serving on https://127.0.0.1:8443'
-
-    store = {}
-    backend = Backend(MemoryCache(store), MemoryDispatcher(store, lambda s: s.swapcase()))
-    handler = Handler(backend)
-    server = pywsgi.WSGIServer(('0.0.0.0', 8443), handler.handle_request)
-    server.serve_forever()
