@@ -10,13 +10,20 @@ from smartcache.handler import Handler
 from smartcache.consumer import Consumer
 
 
-logging.basicConfig(level=logging.DEBUG)
+DEFAULT_WEB_HOST = "0.0.0.0"
+DEFAULT_WEB_PORT = 8443
 DEFAULT_CONFIG_PATH = "config.ini"
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 def start_web(cache, dispatcher, config):
+    host = config.safe_get("web", "host", DEFAULT_WEB_HOST)
+    port = config.safe_get("web", "port", DEFAULT_WEB_PORT)
+
     handler = Handler(cache, dispatcher)
-    server = pywsgi.WSGIServer(('0.0.0.0', 8443), handler.handle_request)
+    server = pywsgi.WSGIServer((host, port), handler.handle_request)
     server.start()
 
 def start_consumer(cache, dispatcher, config):
@@ -25,6 +32,11 @@ def start_consumer(cache, dispatcher, config):
 
 def main(role, config_path):
     config = ConfigLoader(config_path)
+    if not config.read_paths:
+        logger.critical("No configuration file could be read at %s", config_path)
+        logger.critical("Use the -c option to specify a valid configuration file")
+        return
+
     cache = config.cache()
     dispatcher = config.dispatcher()
     ROLES[role](cache, dispatcher, config)
