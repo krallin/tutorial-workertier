@@ -5,9 +5,9 @@ import logging
 from gevent import pywsgi, monkey; monkey.patch_all()
 from gevent.event import Event
 
-from smartcache.config import ConfigLoader
-from smartcache.handler import Handler
-from smartcache.consumer import Consumer
+from httpcache.config import ConfigLoader
+from httpcache.handler import Handler
+from httpcache.consumer import Consumer
 
 
 DEFAULT_WEB_HOST = "0.0.0.0"
@@ -51,11 +51,16 @@ ROLES = {
     "consumer": start_consumer
 }
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser("smartcache")
+
+def cli():
+    parser = argparse.ArgumentParser("httpcache")
     parser.add_argument("-c", "--config", default=DEFAULT_CONFIG_PATH, help="Path to a configuration file. "
                                                                             "Defaults to" + DEFAULT_CONFIG_PATH)
     parser.add_argument("role", help="The role we should run", choices=ROLES.keys())
     args = parser.parse_args()
 
     main(args.role, args.config)
+
+
+if __name__ == "__main__":
+    cli()

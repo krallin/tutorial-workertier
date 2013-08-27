@@ -1,5 +1,5 @@
 #coding:utf-8
-from smartcache.backends.cache import Cache
+from httpcache.backends.cache import Cache
 
 
 class MemoryCache(Cache):

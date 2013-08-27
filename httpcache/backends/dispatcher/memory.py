@@ -1,5 +1,5 @@
 #coding:utf-8
-from smartcache.backends.dispatcher import Dispatcher
+from httpcache.backends.dispatcher import Dispatcher
 
 
 class MemoryDispatcher(Dispatcher):

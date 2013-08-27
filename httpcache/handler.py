@@ -1,6 +1,6 @@
 #coding:utf-8
 from gevent import monkey
-from smartcache.backends import InvalidKey, BackendUnavailable
+from httpcache.backends import InvalidKey, BackendUnavailable
 
 monkey.patch_all()
 
