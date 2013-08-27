@@ -18,13 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 class Connection(object):
-    def __init__(self, host, port, vhost, user, password, queue):
+    def __init__(self, host, port, virtualhost, user, password, queue):
         self.conn_id = hex(int(random.random() * 2**32))
 
         self._conn_kwargs = {
             "host": host,
             "port": port,
-            "vhost": vhost,
+            "vhost": virtualhost,
             "user": user,
             "password": password,
             "transport": "gevent",
@@ -111,10 +111,10 @@ class Connection(object):
 
 
 class RabbitMQDispatcher(Dispatcher):
-    def __init__(self, host, port, vhost, user, password, queue):
+    def __init__(self, host, port, virtualhost, user, password, queue):
         self.host = host
         self.port = port
-        self.vhost = vhost
+        self.virtualhost = virtualhost
         self.user = user
         self.password = password
         self.queue = queue
@@ -130,7 +130,7 @@ class RabbitMQDispatcher(Dispatcher):
                 logger.debug("Reusing existing connection: {0}".format(connection.conn_id))
                 break
         else:
-            connection = Connection(self.host, self.port, self.vhost, self.user, self.password, self.queue)
+            connection = Connection(self.host, self.port, self.virtualhost, self.user, self.password, self.queue)
             connection.lock.acquire(blocking=False)
             self._pool.append(connection)
             logger.debug("Creating new connection: {0}".format(connection.conn_id))
