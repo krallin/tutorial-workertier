@@ -12,7 +12,7 @@ execfile('workertier/version.py') # Load version
 setup(
     name='workertier',
     version=__version__,
-    description='A Scalr tutorial: Web fronend + Memcached + RabbitMQ',
+    description='A Scalr tutorial: Web frontend + Memcached + RabbitMQ',
     author='Thomas Orozco',
     author_email='thomas@scalr.com',
     url='https://github.com/scalr/tutorial-workertier',
