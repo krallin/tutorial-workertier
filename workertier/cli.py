@@ -5,9 +5,9 @@ import logging
 from gevent import pywsgi, monkey; monkey.patch_all()
 from gevent.event import Event
 
-from httpcache.config import ConfigLoader
-from httpcache.handler import Handler
-from httpcache.consumer import Consumer
+from workertier.config import ConfigLoader
+from workertier.handler import Handler
+from workertier.consumer import Consumer
 
 
 DEFAULT_WEB_HOST = "0.0.0.0"
@@ -53,7 +53,7 @@ ROLES = {
 
 
 def cli():
-    parser = argparse.ArgumentParser("httpcache")
+    parser = argparse.ArgumentParser("workertier")
     parser.add_argument("-c", "--config", default=DEFAULT_CONFIG_PATH, help="Path to a configuration file. "
                                                                             "Defaults to" + DEFAULT_CONFIG_PATH)
     parser.add_argument("role", help="The role we should run", choices=ROLES.keys())

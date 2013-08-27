@@ -7,25 +7,25 @@ except ImportError:
 
 
 readme = open('README.rst').read()
-execfile('httpcache/version.py') # Load version
+execfile('workertier/version.py') # Load version
 
 setup(
-    name='httpcache',
+    name='workertier',
     version=__version__,
-    description='An utility package to locate the latest Ubuntu AMIs.',
+    description='A Scalr tutorial: Web fronend + Memcached + RabbitMQ',
     author='Thomas Orozco',
     author_email='thomas@scalr.com',
-    url='https://github.com/scalr/tutorial-httpcache',
+    url='https://github.com/scalr/tutorial-workertier',
     packages=[
-        'httpcache', 'httpcache.backends', 'httpcache.backends.cache', 'httpcache.backends.dispatcher'
+        'workertier', 'workertier.backends', 'workertier.backends.cache', 'workertier.backends.dispatcher'
     ],
-    package_dir={'httpcache': 'httpcache'},
+    package_dir={'workertier': 'workertier'},
     include_package_data=True,
     install_requires=["gevent", "pymemcache", "haigha"],
     license="Apache 2",
     entry_points={
         'console_scripts': [
-            'httpcache = httpcache.cli:cli',
+            'workertier = workertier.cli:cli',
         ],
     },
     zip_safe=False,

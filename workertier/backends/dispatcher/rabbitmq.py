@@ -8,7 +8,7 @@ from gevent.coros import Semaphore
 from haigha.connection import Connection as HaighaConnection
 from haigha.message import Message
 
-from httpcache.backends.dispatcher import Dispatcher
+from workertier.backends.dispatcher import Dispatcher
 
 
 logger = logging.getLogger(__name__)

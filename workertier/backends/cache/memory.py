@@ -1,5 +1,5 @@
 #coding:utf-8
-from httpcache.backends.cache import Cache
+from workertier.backends.cache import Cache
 
 
 class MemoryCache(Cache):
