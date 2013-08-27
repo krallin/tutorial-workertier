@@ -1,3 +1,3 @@
 ===========================
-Scalr Tutorial: SmartCache
+Scalr Tutorial: WorkerTier
 ===========================
