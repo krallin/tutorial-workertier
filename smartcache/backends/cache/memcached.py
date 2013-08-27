@@ -16,10 +16,16 @@ class MemcachedCache(Cache):
         logger.debug("Connecting to Memcached")
         self.client = Client((host, port))
 
-    def get(self, key):
+    def _invoke_command(self, command, *args, **kwargs):
         try:
-            return self.client.get(key)
+            return command(*args, **kwargs)
         except MemcacheIllegalInputError:
             raise InvalidKey()
         except (MemcacheError, socket.error, socket.timeout):
             raise BackendUnavailable()
+
+    def get(self, key):
+        return self._invoke_command(self.client.get, key)
+
+    def set(self, key, value):
+        return self._invoke_command(self.client.set, key, value)

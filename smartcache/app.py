@@ -6,8 +6,9 @@ monkey.patch_all()
 
 
 class Handler(object):
-    def __init__(self, backend):
-        self.backend = backend
+    def __init__(self, cache, dispatcher):
+        self.cache = cache
+        self.dispatcher = dispatcher
 
     def handle_request(self, env, start_response):
         method = env['REQUEST_METHOD']
@@ -25,7 +26,7 @@ class Handler(object):
         key = url[1:]
 
         try:
-            value = self.backend.get(key)
+            value = self.cache.get(key)
         except InvalidKey:
             start_response('400 Bad Request', [])
             return
@@ -35,6 +36,7 @@ class Handler(object):
 
         if value is None:
             start_response('203 Non-Authoritative Information', [])
+            self.dispatcher.dispatch(key)
             return
 
         start_response('200 OK', [('Content-Type', 'text/plain')])
