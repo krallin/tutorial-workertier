@@ -3,8 +3,8 @@ import logging
 import socket
 
 from pymemcache.client import Client, MemcacheError, MemcacheIllegalInputError
-from smartcache.backends import BackendUnavailable, InvalidKey
-from smartcache.backends.cache import Cache
+from httpcache.backends import BackendUnavailable, InvalidKey
+from httpcache.backends.cache import Cache
 #TODO: monkey.patch_all here.
 
 
