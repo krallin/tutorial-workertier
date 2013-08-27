@@ -4,7 +4,7 @@ import logging
 from gevent import pywsgi
 from gevent.event import Event
 
-from smartcache.app import Handler
+from smartcache.handler import Handler
 from smartcache.backends.cache.memcached import MemcachedCache
 from smartcache.backends.dispatcher.rabbitmq import RabbitMQDispatcher
 
