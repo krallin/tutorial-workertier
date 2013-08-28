@@ -1,6 +1,8 @@
 #coding:utf-8
 import argparse
 import logging
+import signal
+import contextlib
 
 from daemon import DaemonContext
 from lockfile.pidlockfile import PIDLockFile
@@ -19,6 +21,7 @@ DEFAULT_GID = 0  # Can be altered in proc.gid
 DEFAULT_LOGLEVEL = logging.DEBUG  # Can be altered in proc.log
 DEFAULT_WEB_HOST = "0.0.0.0"  # Can be altered in web.host
 DEFAULT_WEB_PORT = 8443       # Can be altered in web.port
+START_TIMEOUT = 2
 
 
 def start_web(cache, dispatcher, config):
@@ -93,16 +96,29 @@ def cli():
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
-        root_logger.info("workertier v{0}: starting".format(__version__))
+        manager = DaemonContext(pidfile=PIDLockFile(pidfile, timeout=START_TIMEOUT), uid=uid, gid=gid,
+                                files_preserve=[file_handler.stream], signal_map={})
+    else:
+        @contextlib.contextmanager
+        def null_context():
+            yield None
+        manager = null_context()
 
-        with DaemonContext(pidfile=PIDLockFile(pidfile), files_preserve=[file_handler.stream], uid=uid, gid=gid):
-            # noinspection PyBroadException
-            try:
-                main(args.role, config)
-            except Exception:
-                root_logger.exception("An fatal exception occurred")
 
-    main(args.role, config)
+    root_logger.info("workertier v{0}: starting".format(__version__))
+    # noinspection PyBroadException
+    try:
+        with manager:
+            import gevent  # We need to import this after daemonizing.
+            def terminate(signal_number=None, stackframe=None):
+                raise SystemExit("Terminating process on signal {0}".format(signal_number))
+            gevent.signal(signal.SIGTERM, terminate)
+
+            root_logger.info("workertier v{0}: started".format(__version__))
+            main(args.role, config)
+    except Exception:
+        root_logger.exception("An fatal exception occurred")
+        raise
 
 
 if __name__ == "__main__":

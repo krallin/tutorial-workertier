@@ -2,6 +2,7 @@
 import logging
 
 DEFAULT_NUM_CONSUMERS = 5
+#TODO: Make this configurable
 
 logger = logging.getLogger(__name__)
 

@@ -6,6 +6,7 @@ import gevent
 from gevent.coros import Semaphore
 
 from haigha.connection import Connection as HaighaConnection
+from haigha.exceptions import ChannelClosed
 from haigha.message import Message
 
 from workertier.backends.dispatcher import Dispatcher
@@ -81,8 +82,8 @@ class Connection(object):
             try:
                 self._connection.read_frames()  # Pump
                 gevent.sleep()  # Yield to other greenlets so they don't starve
-            except Exception:
-                # If the connection loop breaks, then we should stop using this conneciton!
+            except (ChannelClosed,):
+                # If the connection loop breaks, then we should stop using this connection!
                 self.broken = True #TODO
                 self.log_exception("Connection loop has died")
 
