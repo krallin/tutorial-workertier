@@ -13,9 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class MemcachedCache(Cache):
-    def __init__(self, host, port):
-        logger.debug("Connecting to Memcached")
-        self.client = Client((host, port))
+    def __init__(self, host, port, timeout):
+        self.client = Client((host, port), connect_timeout=timeout, timeout=timeout)
 
     def _invoke_command(self, command, *args, **kwargs):
         try:
