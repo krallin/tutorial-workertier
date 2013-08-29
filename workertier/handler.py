@@ -1,8 +1,5 @@
 #coding:utf-8
-from gevent import monkey
 from workertier.backends import InvalidKey, BackendUnavailable
-
-monkey.patch_all()
 
 
 class Handler(object):
@@ -27,6 +24,10 @@ class Handler(object):
 
         try:
             value = self.cache.get(key)
+            # Note: This wouldn't make sense for an HA app, but we're just trying to do a POC here,
+            # so we'll appreciate the debug info in case our dispatcher dies.
+            if value is None:
+                self.dispatcher.dispatch(key)
         except InvalidKey:
             start_response('400 Bad Request', [])
             return
@@ -36,7 +37,6 @@ class Handler(object):
 
         if value is None:
             start_response('203 Non-Authoritative Information', [])
-            self.dispatcher.dispatch(key)
             return
 
         start_response('200 OK', [('Content-Type', 'text/plain')])

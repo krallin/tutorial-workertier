@@ -117,7 +117,7 @@ def cli():
             root_logger.info("workertier v{0}: started".format(__version__))
             main(args.role, config)
     except Exception:
-        root_logger.exception("An fatal exception occurred")
+        root_logger.exception("A fatal exception occurred")
         raise
 
 
