@@ -12,3 +12,6 @@ class MemoryCache(Cache):
 
     def get(self, key):
         return self._store.get(key)
+
+    def set(self, key, value):
+        self._store[key] = value

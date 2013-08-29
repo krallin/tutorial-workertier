@@ -13,7 +13,7 @@ class Consumer(object):
         self.dispatcher = dispatcher
         self.num_consumers = num_consumers
 
-    def consume(self, message):
+    def consume_message(self, message):  #TODO: Create a thicker layer on messages
         key = message.body
         value = key.swapcase()
         self.cache.set(key, value)
@@ -21,4 +21,4 @@ class Consumer(object):
 
     def start(self):
         for _ in xrange(self.num_consumers):
-            self.dispatcher.consume(self.consume)
+            self.dispatcher.start_consumer(self.consume_message)

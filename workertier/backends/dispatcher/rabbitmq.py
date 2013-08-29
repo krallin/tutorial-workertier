@@ -149,10 +149,10 @@ class RabbitMQDispatcher(Dispatcher):
         connection.dispatch(key)
         connection.lock.release()
 
-    def consume(self, consumer):
+    def start_consumer(self, message_consumer):
         # Every time this method is called, we start a new consumer
         logger.debug("Starting new consumer")
         connection = self._acquire_connection()
-        connection.consume(consumer)
+        connection.consume(message_consumer)
         # Don't release the connection here.
 
