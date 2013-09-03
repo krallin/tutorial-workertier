@@ -10,7 +10,8 @@ Roles
 Farm
 ====
 
-  + `MEMCACHED_HOST`: DNS entry mapped to Memcached
+  + `MEMCACHED_HOST`: DNS entry mapped to Memcached (Only for nonstandard
+    DNS-based Cache)
   + `MEMCACHED_PORT`: Port for Memcached (11211)
   + `MEMCACHED_TIMEOUT`: Connection timeout for Memcached (e.g. 2)
   + `RABBIT_HOST`: DNS entry mapped to RabbitMQ
