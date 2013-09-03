@@ -17,7 +17,8 @@ setup(
     author_email='thomas@scalr.com',
     url='https://github.com/scalr/tutorial-workertier',
     packages=[
-        'workertier', 'workertier.backends', 'workertier.backends.cache', 'workertier.backends.dispatcher'
+        'workertier', 'workertier.backends', 'workertier.backends.cache', 'workertier.backends.dispatcher',
+        'workertier.backends.cache.memcluster',
     ],
     package_dir={'workertier': 'workertier'},
     include_package_data=True,
