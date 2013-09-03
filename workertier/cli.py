@@ -104,7 +104,7 @@ def cli():
         manager = null_context()
 
 
-    root_logger.info("workertier v{0}: starting".format(__version__))
+    root_logger.info("workertier v{0}: {1} - starting".format(__version__, args.role))
     # noinspection PyBroadException
     try:
         with manager:
@@ -113,7 +113,7 @@ def cli():
                 raise SystemExit("Terminating process on signal {0}".format(signal_number))
             gevent.signal(signal.SIGTERM, terminate)
 
-            root_logger.info("workertier v{0}: started".format(__version__))
+            root_logger.info("workertier v{0}: {1} - started".format(__version__, args.role))
             main(args.role, config)
     except Exception:
         root_logger.exception("A fatal exception occurred")
