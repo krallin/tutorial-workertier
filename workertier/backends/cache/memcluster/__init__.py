@@ -25,7 +25,7 @@ def find_signum(name_or_signum):
 class BaseMemcachedClusterCache(Cache):
     def __init__(self, port, timeout, refresh_signal=None):
         """
-        :param refresh_signal: A signal number or name to attach _refresh_servers_list to.
+        :param refresh_signal: A signal number (e.g. 10) or name (e.g. SIGUSR1) to attach _refresh_servers_list to.
         """
         self.port = port
         self.timeout = timeout
