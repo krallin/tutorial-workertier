@@ -48,7 +48,7 @@ class Connection(object):
             "user": user,
             "password": password,
             "transport": "gevent",
-            "close_db": self._on_disconnect,
+            "close_cb": self._on_disconnect,
         }
         self.queue = queue
 
