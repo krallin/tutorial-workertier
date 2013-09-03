@@ -45,7 +45,7 @@ class BaseMemcachedClusterCache(Cache):
     def _refresh_server_list(self):
         self._ips = self._get_servers_list()
         logger.debug("Refreshed Memcached server list: now %s hosts", len(self._ips))
-        map(logger.debug("Host at: %s"), self._ips)
+        map(logger.debug, ["Host at: %s"]*len(self._ips), self._ips)
 
     def _get_server(self, key):
         # Naive, low-performance implementation
