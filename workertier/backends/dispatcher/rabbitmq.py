@@ -155,4 +155,3 @@ class RabbitMQDispatcher(Dispatcher):
         connection = self._acquire_connection()
         connection.consume(message_consumer)
         # Don't release the connection here.
-

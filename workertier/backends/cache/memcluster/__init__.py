@@ -3,7 +3,6 @@ import random
 import logging
 import zlib
 
-from gevent import socket, dns
 from workertier.backends import BackendUnavailable
 
 from workertier.backends.cache import Cache
@@ -13,20 +12,20 @@ from workertier.backends.cache.memcached import MemcachedCache
 logger = logging.getLogger(__name__)
 
 
-class DomainClusteredMemcachedCache(Cache):
-    def __init__(self, domain, port, timeout):
-        self.domain = domain
+class BaseMemcachedClusterCache(Cache):
+    def __init__(self, port, timeout):
         self.port = port
         self.timeout = timeout
 
         self._ips = []
         self._clients = {}
 
+    def _get_servers_list(self):
+        raise NotImplementedError()
+
     def _refresh_server_list(self):
-        logger.debug("Refreshing Memcached server list")
-        ttl, ips = dns.resolve_ipv4(self.domain)
-        # noinspection PyUnresolvedReferences
-        self._ips = [socket.inet_ntoa(ip) for ip in sorted(ips)]
+        self._ips = self._get_servers_list()
+        logger.debug("Refreshed Memcached server list: now %s hosts", len(self._ips))
 
     def _get_server(self, key):
         # Naive, low-performance implementation
@@ -46,7 +45,7 @@ class DomainClusteredMemcachedCache(Cache):
             self._refresh_server_list()
 
         if not self._ips:
-            raise BackendUnavailable("No servers for {0}".format(self.domain))
+            raise BackendUnavailable("No servers found")
 
         return self._get_cache(key)
 
