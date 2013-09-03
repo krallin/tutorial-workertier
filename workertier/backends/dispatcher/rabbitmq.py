@@ -97,7 +97,7 @@ class Connection(object):
     def publish(self, key):
         # This expects that the channel is already open.
         msg = Message(key)
-        self._channel.basic.publish(msg, "", self.queue)
+        self._channel.basic.publish(msg, "", self.queue)  #TODO: Socket errors could occur here too
 
     def dispatch(self, key):
         self._ensure_open()
