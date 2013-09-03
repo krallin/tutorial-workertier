@@ -4,6 +4,7 @@ import logging
 
 import gevent
 from gevent import socket
+from gevent import dns
 from gevent.coros import Semaphore
 
 from haigha.connection import Connection as HaighaConnection
@@ -161,8 +162,8 @@ class RabbitMQDispatcher(Dispatcher):
                 # noinspection PyUnresolvedReferences
                 try:
                     connection.consume(message_consumer)
-                except socket.timeout:
-                    logger.warning("Timeout starting consumer on connection: %s", connection.conn_id)
+                except (socket.timeout, dns.DNSError) as e:
+                    logger.warning("Error starting consumer on connection (%s): %s", connection.conn_id, e)
                     connection.broken = True
                 finally:
                     connection.lock.release()
