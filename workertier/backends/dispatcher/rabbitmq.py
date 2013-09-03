@@ -162,7 +162,7 @@ class RabbitMQDispatcher(Dispatcher):
                 # noinspection PyUnresolvedReferences
                 try:
                     connection.consume(message_consumer)
-                except (socket.timeout, dns.DNSError) as e:
+                except (socket.error, dns.DNSError) as e:
                     logger.warning("Error starting consumer on connection (%s): %s", connection.conn_id, e)
                     connection.broken = True
                 finally:
