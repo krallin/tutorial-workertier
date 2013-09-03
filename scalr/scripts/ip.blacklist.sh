@@ -1,4 +1,5 @@
 #!/bin/bash
+# NOTE: Only use this if you're using Scalarizr < 0.21.1
 set -o nounset
 set -o errexit
 

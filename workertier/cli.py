@@ -26,7 +26,7 @@ START_TIMEOUT = 2
 
 def start_web(cache, dispatcher, config):
     # Lazy import since we might have to fork and would rather not mess up gevent.
-    from gevent import pywsgi, monkey; monkey.patch_all()
+    from gevent import pywsgi
     from workertier.handler import Handler
 
     host = config.safe_get("web", "host", DEFAULT_WEB_HOST)
@@ -37,7 +37,6 @@ def start_web(cache, dispatcher, config):
     server.start()
 
 def start_consumer(cache, dispatcher, config):
-    from gevent import monkey; monkey.patch_all()
     from workertier.consumer import Consumer
 
     consumer = Consumer(cache, dispatcher)

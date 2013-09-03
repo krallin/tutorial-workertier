@@ -4,8 +4,10 @@ set -o errexit
 
 cat << EOF > $WORKERTIER_CONFIG 
 [cache]
-class=workertier.backends.cache.memcached.MemcachedCache
-host=$MEMCACHED_HOST
+class=workertier.backends.cache.memcluster.scalr.ScalrMemcachedClusterCache
+ip_list_home=/etc/scalr/private.d/hosts
+memcached_role=memcached
+refresh_signal=SIGUSR1
 port=$MEMCACHED_PORT
 timeout=$MEMCACHED_TIMEOUT
 
