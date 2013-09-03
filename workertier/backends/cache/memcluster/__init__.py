@@ -57,6 +57,7 @@ class BaseMemcachedClusterCache(Cache):
         if  server not in self._clients:
             logger.debug("Creating new client for %s", server)
             self._clients[server] = MemcachedCache(server, self.port, self.timeout)
+        logger.debug("Using host: %s", server)
         return self._clients[server]
 
     def get_cache(self, key):
