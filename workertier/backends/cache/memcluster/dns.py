@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 class DNSMemcachedClusterCache(BaseMemcachedClusterCache):
-    def __init__(self, domain, port, timeout):
-        super(DNSMemcachedClusterCache, self).__init__(port, timeout)
+    def __init__(self, domain, port, timeout, refresh_signal):
+        super(DNSMemcachedClusterCache, self).__init__(port, timeout, refresh_signal)
         self.domain = domain
 
     def _get_servers_list(self):

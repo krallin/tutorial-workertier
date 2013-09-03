@@ -2,9 +2,11 @@
 import random
 import logging
 import zlib
+import signal
+
+import gevent
 
 from workertier.backends import BackendUnavailable
-
 from workertier.backends.cache import Cache
 from workertier.backends.cache.memcached import MemcachedCache
 
@@ -12,13 +14,30 @@ from workertier.backends.cache.memcached import MemcachedCache
 logger = logging.getLogger(__name__)
 
 
+def find_signum(name_or_signum):
+    try:
+        signum = int(name_or_signum)
+    except ValueError:
+        signum = getattr(signal, name_or_signum)
+    return signum
+
+
 class BaseMemcachedClusterCache(Cache):
-    def __init__(self, port, timeout):
+    def __init__(self, port, timeout, refresh_signal=None):
+        """
+        :param refresh_signal: A signal number or name to attach _refresh_servers_list to.
+        """
         self.port = port
         self.timeout = timeout
 
         self._ips = []
         self._clients = {}
+
+        if refresh_signal is not None:
+            signum = find_signum(refresh_signal)
+            if signum is None:
+                raise TypeError("refresh_signal was not None, but was not a valid signal name or signum")
+            gevent.signal(signum, self._refresh_server_list)
 
     def _get_servers_list(self):
         raise NotImplementedError()
@@ -26,6 +45,7 @@ class BaseMemcachedClusterCache(Cache):
     def _refresh_server_list(self):
         self._ips = self._get_servers_list()
         logger.debug("Refreshed Memcached server list: now %s hosts", len(self._ips))
+        map(logger.debug("Host at: %s"), self._ips)
 
     def _get_server(self, key):
         # Naive, low-performance implementation
