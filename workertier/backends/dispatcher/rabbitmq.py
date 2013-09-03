@@ -3,6 +3,8 @@ import random
 import logging
 
 import gevent
+from gevent import socket
+from gevent import dns
 from gevent.coros import Semaphore
 
 from haigha.connection import Connection as HaighaConnection
@@ -16,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 #TODO: Understand and catch where exceptions can pop up
+CONSUMER_STATUS_CHECK_INTERVAL = 1  #TODO Configurable?
 
 
 class Connection(object):
@@ -82,7 +85,7 @@ class Connection(object):
             try:
                 self._connection.read_frames()  # Pump
                 gevent.sleep()  # Yield to other greenlets so they don't starve
-            except (ChannelClosed,):
+            except (ChannelClosed,):  #TODO: Catch socket.timeout here?
                 # If the connection loop breaks, then we should stop using this connection!
                 self.broken = True #TODO
                 self.log_exception("Connection loop has died")
@@ -94,7 +97,7 @@ class Connection(object):
     def publish(self, key):
         # This expects that the channel is already open.
         msg = Message(key)
-        self._channel.basic.publish(msg, "", self.queue)
+        self._channel.basic.publish(msg, "", self.queue)  #TODO: Socket errors could occur here too
 
     def dispatch(self, key):
         self._ensure_open()
@@ -128,13 +131,13 @@ class RabbitMQDispatcher(Dispatcher):
             if connection.broken:
                 continue
             if connection.lock.acquire(blocking=False):
-                logger.debug("Reusing existing connection: {0}".format(connection.conn_id))
+                logger.debug("Reusing existing connection: %s", connection.conn_id)
                 break
         else:
             connection = Connection(self.host, self.port, self.virtualhost, self.user, self.password, self.queue)
             connection.lock.acquire(blocking=False)
             self._pool.append(connection)
-            logger.debug("Creating new connection: {0}".format(connection.conn_id))
+            logger.debug("Creating new connection: %s", connection.conn_id)
 
         # Clean up 10% of the time
         if random.random() < 0.1:
@@ -146,12 +149,24 @@ class RabbitMQDispatcher(Dispatcher):
     def dispatch(self, key):
         logger.debug("Dispatching new message: '%s'", key)
         connection = self._acquire_connection()
-        connection.dispatch(key)
+        connection.dispatch(key)  #TODO: Try / except / finally here (catch socket.timeout, and raise BackendUnavailable)
         connection.lock.release()
 
     def start_consumer(self, message_consumer):
         # Every time this method is called, we start a new consumer
         logger.debug("Starting new consumer")
-        connection = self._acquire_connection()
-        connection.consume(message_consumer)
-        # Don't release the connection here.
+        connection = None
+        while 1:
+            if connection is None or connection.broken:
+                connection = self._acquire_connection()
+                # noinspection PyUnresolvedReferences
+                try:
+                    connection.consume(message_consumer)
+                except (socket.error, dns.DNSError) as e:
+                    logger.warning("Error starting consumer on connection (%s): %s", connection.conn_id, e)
+                    connection.broken = True
+                finally:
+                    connection.lock.release()
+
+            gevent.sleep(CONSUMER_STATUS_CHECK_INTERVAL)
+            # TODO: Add exponential backoff
