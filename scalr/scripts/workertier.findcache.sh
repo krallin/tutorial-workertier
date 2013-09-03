@@ -6,5 +6,5 @@ set -o errexit
 
 sleep 5 # Huge hack to give IpListBuilder time to run
 
-PIDFILE=/var/run/workertier.$WORKERTIER_ROLE.pid
+PIDFILE=/var/run/workertier.*.pid
 kill -s USR1 `cat $PIDFILE`
