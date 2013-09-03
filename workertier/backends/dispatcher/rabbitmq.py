@@ -167,5 +167,6 @@ class RabbitMQDispatcher(Dispatcher):
                     connection.broken = True
                 finally:
                     connection.lock.release()
-            else:
-                gevent.sleep(CONSUMER_STATUS_CHECK_INTERVAL)
+
+            gevent.sleep(CONSUMER_STATUS_CHECK_INTERVAL)
+            # TODO: Add exponential backoff
