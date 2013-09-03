@@ -22,6 +22,7 @@ CONSUMER_STATUS_CHECK_INTERVAL = 1  #TODO Configurable?
 
 
 def exec_or_break(method):
+    #TODO: It's better if the connection pool knows about this (so it can raise BackendUnavailable)
     """
     Decorate methods so that instead of raising Exceptions, they mark the connection as broken.
     """
@@ -49,6 +50,7 @@ class Connection(object):
             "password": password,
             "transport": "gevent",
             "close_cb": self._on_disconnect,
+            "logger": logger,
         }
         self.queue = queue
 
