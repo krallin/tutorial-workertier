@@ -1,8 +1,12 @@
 #coding:utf-8
 import logging
 
+import gevent
+
+
 DEFAULT_NUM_CONSUMERS = 5
 #TODO: Make this configurable
+
 
 logger = logging.getLogger(__name__)
 
@@ -21,4 +25,4 @@ class Consumer(object):
 
     def start(self):
         for _ in xrange(self.num_consumers):
-            self.dispatcher.start_consumer(self.consume_message)
+            gevent.spawn(self.dispatcher.start_consumer, self.consume_message)
