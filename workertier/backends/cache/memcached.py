@@ -2,10 +2,11 @@
 import logging
 import socket
 
+import gevent.socket
 from pymemcache.client import Client, MemcacheError, MemcacheIllegalInputError
+
 from workertier.backends import BackendUnavailable, InvalidKey
 from workertier.backends.cache import Cache
-#TODO: monkey.patch_all here.
 
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class MemcachedCache(Cache):
     def __init__(self, host, port, timeout):
-        self.client = Client((host, port), connect_timeout=timeout, timeout=timeout)
+        self.client = Client((host, port), connect_timeout=timeout, timeout=timeout, socket_module=gevent.socket)
 
     def _invoke_command(self, command, *args, **kwargs):
         try:
